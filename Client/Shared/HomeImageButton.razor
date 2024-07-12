@@ -1,0 +1,9 @@
+@inject NavigationManager NavigationManager
+
+<button @onclick="ToHome" class="btn btn-outline-primary home-button">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/Crystal_folder_home.png" alt="A button nav to home page">
+</button>
+
+@code {
+    private void ToHome() => NavigationManager.NavigateTo("");
+}

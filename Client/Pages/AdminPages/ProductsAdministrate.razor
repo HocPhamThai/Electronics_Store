@@ -1,0 +1,231 @@
+@page "/administrator/crud-product"
+@page "/administrator/crud-product/{id:int}"
+
+@inject IJSRuntime _jsRuntime
+@inject IProductsService _productsService
+@inject NavigationManager _navigationManager
+@inject ICategoriesService _categoriesService
+@inject IProductVarietyService _productVarietyService
+
+
+@if (!isFetchingData)
+{
+    @if (product is { isModifying: false, isNew: true })
+    {
+        <h3>Create a New Product</h3>
+    }
+    else if(product.isModifying)
+    {
+        <h3>Modify "@product.ProductName"</h3>
+    }
+
+    <EditForm Model="product" OnValidSubmit="AddOrUpdateProduct">
+        <DataAnnotationsValidator/>
+        <div class="mb-0">
+            <label for="productName">Product Name</label>
+            <InputText id="productName" @bind-Value="product.ProductName" class="form-control"></InputText>
+        </div>
+        <div class="mb-0">
+            <label for="imageUrl">Image Url</label>
+            <InputText id="imageUrl" @bind-Value="product.ProductImageUrl" class="form-control"></InputText>
+        </div>
+        <div class="mb-0" style="display: flex; flex-wrap: wrap; flex-direction: row; justify-content: center;">
+            @if (string.IsNullOrEmpty(product.ProductImageUrl))
+            {
+                foreach (Picture picture in product.Pictures)
+                {
+                    <MudCard Class="ma-2">
+                        <MudCardContent>
+                            <MudImage Src="@picture.pictureInfo" />
+                        </MudCardContent>
+                        <MudCardActions Style="justify-content: center;">
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Error"
+                                       OnClick="@(() => DeletePictureById(picture.pictureId))">
+                                Delete This Image
+                            </MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                }
+            }
+            else
+            {
+                <img src="@product.ProductImageUrl" alt="product image"/>
+            }
+        </div>
+        <div class="mb-0">
+            <label for="pictures">Product Picture(s) File</label>
+            <InputFile id="pictures" OnChange="ChangeOfFile" multiple class="form-control"></InputFile>
+        </div>
+        <div class="mb-0">
+            <label for="productDetail">Detail Description</label>
+            <InputTextArea id="productDetail" @bind-Value="product.ProductDetail" class="form-control"></InputTextArea>
+        </div>
+        <hr/>
+        
+        
+        <div class="header">
+            <div class="col">Product Variety / Variant</div>
+            <div class="col">Price</div>
+            <div class="col">Initialized Price</div>
+            <div class="col">Visibility</div>
+            <div class="col"></div>
+        </div>
+        @foreach (ProductVariant variant in product.ProductVariants)
+        {
+            <div class="row">
+                <div class="col">
+                    <InputSelect disabled="@variant.isDeleted" @bind-Value="variant.productVarietyId" class="form-control">
+                        @foreach (ProductVariety variety in _productVarietyService.ProductVarieties)
+                        {
+                            <option value="@variety.Id.ToString()">@variety.Name</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="col">
+                    <InputNumber @bind-Value="variant.price" class="form-control" disabled="@variant.isDeleted"></InputNumber>
+                </div>
+                <div class="col">
+                    <InputNumber @bind-Value="variant.initialPrice" class="form-control" disabled="@variant.isDeleted"></InputNumber>
+                </div>
+                <div class="col col-visible">
+                    <InputCheckbox @bind-Value="variant.isViewable" style="transform:scale(1.5,1.5);" disabled="@variant.isDeleted"></InputCheckbox>
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-primary" disabled="@variant.isDeleted" @onclick="@(() => DeleteVariantById(variant.productVarietyId))"><i class="oi oi-trash"></i></button>
+                </div>
+            </div>
+        }
+        <button type="button" class="btn btn-primary" @onclick="AddVariant"><i class="oi oi-plus"></i>Add This Variant</button>
+        <hr/>
+        
+        
+        <div class="mb-0">
+            <label for="category">Category</label>
+            <InputSelect id="category" @bind-Value="product.ProductCategoryId" class="form-control">
+                @foreach (Category category in _categoriesService.AdminCategories)
+                {
+                    <option value="@category.CategoryId">@category.CategoryName</option>
+                }
+            </InputSelect>
+        </div>
+        <hr/>
+        
+        
+        <div class="form-check">
+            <label for="top" class="form-check-label">Top Product ?</label>
+            <InputCheckbox id="top" @bind-Value="product.IsTopProduct" class="form-check-input"></InputCheckbox>
+        </div>
+        <div class="form-check">
+            <InputCheckbox id="visibility" @bind-Value="product.isViewable" class="form-check-input"></InputCheckbox>
+            <label for="visibility" class="form-check-label">Can be viewed ?</label>
+        </div>
+        <hr />
+        
+        
+        <button type="submit" class="btn btn-primary float-end">@textOnButton</button>
+        <ValidationSummary/>
+    </EditForm>
+    @if (!product.isNew)
+    {
+        <button type="button" class="btn btn-danger float-start" @onclick="DeleteProduct">Remove This Product</button>
+    }
+}
+else
+{
+    <span>@message</span>
+}
+
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+    
+    string textOnButton = "";
+    string message = "Fetching Data...";
+    
+    bool isFetchingData = true;
+    
+    Product product = new();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await _categoriesService.GetCategoriesAsAdmin();
+        await _productVarietyService.GetProductVarieties();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (id == 0)
+        {
+            textOnButton = "Create a New Product";
+            product = new Product { isNew = true };
+        }
+        else if ( (await _productsService.GetProductById(id)).Data is var foundDbProduct && foundDbProduct != null )
+        {
+            textOnButton = "Modify This Product";
+                
+            product = foundDbProduct;
+            product.isModifying = true;
+        }
+        else
+        {
+            message = $"There's No Product with Id = '{id}'!";
+            return;
+        }
+        isFetchingData = false;
+    }
+
+    void DeleteVariantById(int productVarietyId)
+    {
+        var variant = product.ProductVariants.Find(variant => variant.productVarietyId == productVarietyId);
+        if (variant != null)
+            if (!variant.isNew)
+                variant.isDeleted = true;
+            else
+                product.ProductVariants.Remove(variant);
+        
+    }
+
+    void AddVariant() =>
+        product.ProductVariants.Add(new ProductVariant { isNew = true, productId = product.ProductId });
+    
+    async void AddOrUpdateProduct()
+    {
+        if (!product.isNew)
+        {
+            product.isNew = false;
+            product = await _productsService.UpdateProduct(product);
+            _navigationManager.NavigateTo($"administration/crud-product/{product.ProductId}", true);
+        }
+        else _navigationManager.NavigateTo($"administration/crud-product/{(await _productsService.CreateProduct(product)).ProductId}");
+    }
+
+    async void DeleteProduct()
+    {
+        if (await _jsRuntime.InvokeAsync<bool>("confirm", "Do you really want to delete this product?"))//"delete or not" confirmation
+        {
+            await _productsService.DeleteProduct(product);
+            _navigationManager.NavigateTo("administration/view-products");
+        }
+    }
+    
+    void DeletePictureById(int pictureId)
+    {
+        Picture? foundPicture = product.Pictures.FirstOrDefault(picture => picture.pictureId == pictureId);
+        if (foundPicture != null)
+            product.Pictures.Remove(foundPicture);
+    }
+    
+    async Task ChangeOfFile(InputFileChangeEventArgs e)
+    {
+        string format = "image/png";
+        foreach (IBrowserFile imageFile in e.GetMultipleFiles(int.MaxValue))
+        {
+            IBrowserFile resizedImage = await imageFile.RequestImageFileAsync(format, 200, 200);
+            byte[] buffer = new byte[resizedImage.Size];
+            await resizedImage.OpenReadStream().ReadAsync(buffer);
+            product.Pictures.Add(new Picture { pictureInfo = $"data:{format};base64,{Convert.ToBase64String(buffer)}" });
+        }
+    }
+}

@@ -1,0 +1,59 @@
+@page "/administrator/view-products"
+@attribute [Authorize(Roles = "Administrator")]
+@inject IProductsService _productsService
+@inject NavigationManager _navigationManager
+
+<h3>Products</h3>
+
+@if (_productsService.ProductsForAdmin != null)
+{
+    <button class="btn btn-primary float-end" @onclick="CreateProduct"><i class="oi oi-plus"></i>Create a New Product</button>
+    <table class="table">
+        <thead>
+        <tr>
+            <th></th>
+            <th>Product Name</th>
+            <th>Variant</th>
+            <th>Price</th>
+            <th>Visibility</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+            <Virtualize Items="_productsService.ProductsForAdmin" Context="product">
+                <tr>
+                    <td><img src="@product.ProductImageUrl" alt="@product.ProductName Image"/></td>
+                    <td>@product.ProductName</td>
+                    <td>
+                        @foreach (var variant in product.ProductVariants)
+                        {
+                            <span>@variant.productVariety.Name</span><br />
+                        }
+                    </td>
+                    <td>
+                        @foreach (var variant in product.ProductVariants)
+                        {
+                            <span>@variant.price</span><br />
+                        }
+                    </td>
+                    <td>@(product.isViewable ? "Yes" : "No")</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => ModifyProduct(product.ProductId)"><i class="oi oi-pencil"></i></button>
+                    </td>
+                </tr>
+            </Virtualize>
+        </tbody>
+    </table>
+}
+else
+{
+    <span>Fetching Products Data ...</span>
+}
+
+@code {
+    protected override async Task OnInitializedAsync() => await _productsService.GetProductsAsAdmin();
+
+    void ModifyProduct(int productId) => _navigationManager.NavigateTo($"administrator/crud-product/{productId}");
+
+    void CreateProduct() => _navigationManager.NavigateTo("administrator/crud-product");
+}

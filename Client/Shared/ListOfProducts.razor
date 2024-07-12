@@ -1,0 +1,68 @@
+@inject IProductsService productsService
+@implements IDisposable
+
+<div class="container">
+
+    @if(productsService.Products == null || productsService.Products.Count == 0)
+    {
+        <span>@productsService.Message</span>
+    }
+    else
+    {
+        <h3 class="mb-3">@productsService.Message</h3>
+        <ul id="list_products" class="list-unstyled mt-3">
+            @foreach (Product product in productsService.Products)
+            {
+                <li class="media my-3">
+                    <div class="media-img-wrapper media1 mr-2">
+                        <a href="/products/@product.ProductId">
+                            @if (string.IsNullOrEmpty(product.ProductImageUrl) && product.Pictures.Count > 0)
+                            {
+                                <img class="media-img" src="@product.Pictures[0].pictureInfo" alt="@product.ProductName picture"/>
+                            }
+                            else
+                            {
+                                <img class="media-img" src="@product.ProductImageUrl" alt="@product.ProductName picture" />
+                            }
+                        </a>
+                    </div>
+                    <div class="media-body">
+                        <a href="/products/@product.ProductId">
+                            <h4 class="mb-0">@product.ProductName</h4>
+                        </a>
+                        <p>@product.ProductDetail</p>
+                        <h5 class="price">
+                            @ProductPriceToString(product) USD
+                        </h5>
+                    </div>
+                </li>
+            }
+        </ul>
+        for (int i = 1; i <= productsService.NumOfPages; i++)
+        {
+            <a class="btn
+                     @(i == productsService.CurrentPageIndex ? "btn-info" : "btn-outline-info")
+                     page-number"
+               href="/search/@productsService.LatestSearch/@i">@i</a>
+        }
+    }
+
+</div>
+
+
+@code {
+
+    
+    protected override void OnInitialized() => productsService.ChangeOfProducts += StateHasChanged;//register event
+
+    public void Dispose() => productsService.ChangeOfProducts -= StateHasChanged; //unregister
+    
+    private string ProductPriceToString(Product product)
+    {
+        List<ProductVariant>? variants = product.ProductVariants;
+        if(variants == null || !variants.Any())
+            return string.Empty;
+        return $"Begin at: ${variants.Min(variant => variant.price)}";
+    }
+
+}

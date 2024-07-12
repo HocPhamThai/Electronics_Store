@@ -1,0 +1,108 @@
+@page "/products/{_productId:int}"
+@inject IProductsService ProductsService
+@inject ICartService CartService
+<h3>Product Detail</h3>
+
+@if (_product == null)
+{
+    <span>@_message</span>
+}
+else
+{
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-md-6">
+                @if (string.IsNullOrEmpty(_product.ProductImageUrl))
+                {
+                    <MudCarousel Class="mud-width-full" ItemsSource="@_product.Pictures" Style="height: 200px;">
+                        <ItemTemplate>
+                            <MudImage Src="@context.pictureInfo"></MudImage>
+                        </ItemTemplate>
+                    </MudCarousel>
+                }
+                else
+                {
+                    <img src="@_product.ProductImageUrl" alt="@_product.ProductName" class="img-fluid" />
+                }
+            </div>
+            <div class="col-md-6">
+                <h3 class="text-center">@_product.ProductName</h3>
+                <hr />
+                <div class="media-body">
+                    <p>@_product.ProductDetail</p>
+                    @if (_product.ProductVariants != null && _product.ProductVariants.Count > 1)
+                    {
+                        <div class="mb-3">
+                            <select class="form-select" @bind="_productVarietyId">
+                                @foreach (var productVariant in _product.ProductVariants)
+                                {
+                                    <option value="@productVariant.productVarietyId">@productVariant.productVariety?.Name</option>
+                                }
+                            </select>
+                        </div>
+                    }
+
+                    @{
+                        var variant = GetFirstVariantMatchVarietyId();
+                        if (variant != null)
+                        {
+                            @if (variant.initialPrice > variant.price)
+                            {
+                                <h6 class="text-muted initial-price">
+                                    $@variant.initialPrice USD
+                                </h6>
+                            }
+                            <h4 class="price">
+                                $@variant.price USD
+                            </h4>
+                        }
+                    }
+                    <button class="btn btn-primary mb-md-2 mb-2" @onclick="AddToCart">
+                        <i class="oi oi-cart"></i>&nbsp;&nbsp;&nbsp;Add to Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+@code
+{
+    private Product? _product;
+    
+    [Parameter]
+    public int _productId { get; set; }
+    private string _message { get; set; } = "Fetching Product Detail, Pleas Wait!";
+    private int _productVarietyId { get; set; }
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        ServiceResponder<Product> serviceResponder = await ProductsService.GetProductById(_productId);
+        if (serviceResponder.IsSuccess)
+        {
+            _product = serviceResponder.Data;
+            if(_product != null && _product.ProductVariants != null)
+                _productVarietyId = _product.ProductVariants.Any() ? _product.ProductVariants[0].productVarietyId : 1;
+        }
+        else
+        {
+            _message = serviceResponder.Message;
+            _productVarietyId = 1;
+        }
+    }
+
+    private ProductVariant? GetFirstVariantMatchVarietyId()
+        => _product?.ProductVariants?.FirstOrDefault(variant => variant.productVarietyId == _productVarietyId);
+    
+    private async Task AddToCart()
+    {
+        ProductVariant? productVariant = GetFirstVariantMatchVarietyId();
+        await CartService.AddToCart(new CartProduct()
+        {
+            productId= productVariant.productId,
+            productVarietyId = productVariant.productVarietyId
+        });
+    }
+    
+}

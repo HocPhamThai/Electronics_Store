@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Electronics_Store.Server", "Server\Electronics_Store.Server.csproj", "{EC308715-6D34-4CC7-A548-C5778689CA80}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Electronics_Store.Client", "Client\Electronics_Store.Client.csproj", "{27AA80C2-6F1E-4351-8B1C-D35388CEEB50}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Electronics_Store.Shared", "Shared\Electronics_Store.Shared.csproj", "{75CB695D-6CB2-4C6D-9530-5A383A625634}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EC308715-6D34-4CC7-A548-C5778689CA80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC308715-6D34-4CC7-A548-C5778689CA80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC308715-6D34-4CC7-A548-C5778689CA80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC308715-6D34-4CC7-A548-C5778689CA80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27AA80C2-6F1E-4351-8B1C-D35388CEEB50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27AA80C2-6F1E-4351-8B1C-D35388CEEB50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27AA80C2-6F1E-4351-8B1C-D35388CEEB50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27AA80C2-6F1E-4351-8B1C-D35388CEEB50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75CB695D-6CB2-4C6D-9530-5A383A625634}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75CB695D-6CB2-4C6D-9530-5A383A625634}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75CB695D-6CB2-4C6D-9530-5A383A625634}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75CB695D-6CB2-4C6D-9530-5A383A625634}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

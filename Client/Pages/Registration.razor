@@ -1,0 +1,56 @@
+@page "/Register"
+@inject IAuthenticationService AuthenticationService
+@inject NavigationManager _navigationManager
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <PageTitle>User Registration</PageTitle>
+            <h3>Register</h3>
+            <EditForm Model="registration" OnValidSubmit="HandleUserRegistration">
+                <DataAnnotationsValidator/>
+                <div class="mb-3">
+                    <label for="email">Enter Your Email Here</label>
+                    <InputText id="email" @bind-Value="registration.email" class="form-control"/>
+                    <ValidationMessage For="@(() => registration.email)"/>
+                </div>
+                <div class="mb-3">
+                    <label for="password">Enter Your Password Here</label>
+                    <InputText id="password" @bind-Value="registration.password" class="form-control" type="password"/>
+                    <ValidationMessage For="@(() => registration.password)"/>
+                </div>
+                <div class="mb-3">
+                    <label for="confirmPassword">Confirm Your Password</label>
+                    <InputText id="confirmPassword" @bind-Value="registration.userConfirmedPassword" class="form-control" type="password"/>
+                    <ValidationMessage For="@(() => registration.userConfirmedPassword)"/>
+                </div>
+                <button type="submit" class="btn btn-primary">Sign Up</button>
+                <PopupDiaglog @ref="popupRef"/>
+                <div class="@messageCssClass">
+                    <span>@message</span>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    Register4User registration = new();
+    string toSignInPage = "/login";
+    
+    private PopupDiaglog popupRef;
+
+    async Task HandleUserRegistration()
+    {
+        ServiceResponder<int> response = await AuthenticationService.Register(registration);
+        messageCssClass = (response.IsSuccess) ? "text-success" : "text-danger";
+        message = response.Message;
+        popupRef.Show(message);
+        await Task.Delay(5000);
+        _navigationManager.NavigateTo(toSignInPage);
+    }
+    
+    private string message = string.Empty;
+    private string messageCssClass = string.Empty;
+}

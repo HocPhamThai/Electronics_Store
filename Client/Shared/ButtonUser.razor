@@ -1,0 +1,47 @@
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ICartService CartService
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager NavigationManager
+
+<div class="dropdown">
+    <button @onclick="ToggleIsUserMenuShowed"
+            @onfocusout="HideUserMenu"
+            class="btn btn-secondary dropdown-toggle user-button">
+        <i class="oi oi-person"></i>
+    </button>
+    <div class="dropdown-menu dropdown-menu-right @(isUserMenuShowed ? "show-menu" : null)">@*@userMenuCssClass*@
+        <AuthorizeView>
+            <NotAuthorized>
+                <a href="login?backUrl=@NavigationManager.ToBaseRelativePath(NavigationManager.Uri)" class="dropdown-item">Log In?</a>
+                <a href="register" class="dropdown-item">Register?</a>
+            </NotAuthorized>
+            <Authorized>
+                <a href="userProfile" class="dropdown-item">Your User Profile</a>
+                <a href="orders" class="dropdown-item">Your Product Orders</a>
+                <hr/>
+                <AdministratorDashboard/>
+                <button class="dropdown-item" @onclick="SignOut">Sign Out</button>
+            </Authorized>
+        </AuthorizeView>
+    </div>
+</div>
+
+@code {
+    private bool isUserMenuShowed;
+
+    private void ToggleIsUserMenuShowed() => isUserMenuShowed = !isUserMenuShowed;
+
+    private async Task HideUserMenu()
+    {
+        await Task.Delay(200);
+        isUserMenuShowed = false;
+    }
+    
+    private async Task SignOut()
+    {
+        await LocalStorage.RemoveItemAsync("Authentication_Token_Key");
+        await CartService.CountCartProducts();
+        await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        NavigationManager.NavigateTo("");
+    }
+}

@@ -1,0 +1,48 @@
+@inject IProductsService productsService
+@implements IDisposable
+
+<div style="text-align: center;"><h2>List of Top Products</h2></div> @**@
+@if (productsService.Products != null && productsService.Products.Count > 0)
+{
+    <div class="container">
+        <div class="row">
+            @foreach (Product product in productsService.Products.Where(product => product.IsTopProduct))
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="featured-product text-center mx-auto">
+                        <div>
+                            <a href="/products/@product.ProductId">
+                                <img src="@product.ProductImageUrl" alt="@product.ProductName image" class="img-fluid">
+                            </a>
+                        </div>
+                        <h4><a href="/products/@product.ProductId">@product.ProductName</a></h4>
+                        @if (product.ProductVariants is { Count: > 0 })
+                        {
+                            <h5 class="price">
+                                $@product.ProductVariants[0].price
+                            </h5>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    
+}
+else
+{
+    <span>@productsService.Message</span>
+}
+
+@code {
+    
+    
+    
+
+    protected override void OnInitialized() => productsService.ChangeOfProducts += StateHasChanged; // register changing event
+
+    public void Dispose() => productsService.ChangeOfProducts -= StateHasChanged; //unregister
+
+    
+    
+}

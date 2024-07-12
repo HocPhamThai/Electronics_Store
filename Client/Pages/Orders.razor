@@ -1,0 +1,34 @@
+@page "/Orders"
+@inject IOrderService OrderService
+
+<h3>Orders</h3>
+@if (summaries == null)
+{
+    <span>Orders Loading..., Please Wait !</span>
+}
+else
+{
+    if (summaries.Count <= 0)
+    {
+        <span>Your Order is Empty</span>
+    }
+    foreach (SummaryOrderResponder orderSummary in summaries)
+    {
+        <div class="container">
+            <div class="image-wrapper">
+                <img src="@orderSummary.productImageUrl" class="image" alt="image for order summary"/>
+            </div>
+            <div class="details">
+                <h4>@orderSummary.product</h4>
+                <span>@orderSummary.orderDate</span><br />
+                <a href="OrderDetails/@orderSummary.id">Show Detail Order</a>
+            </div>
+            <div class="order-price">$@orderSummary.totalPrice</div>
+        </div>
+    }
+}
+
+@code {
+    List<SummaryOrderResponder>? summaries = null;
+    protected override async Task OnInitializedAsync() => summaries = await OrderService.GetOrders();
+}

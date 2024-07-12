@@ -1,0 +1,80 @@
+@page "/Login"
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IAuthenticationService _authenticationService
+@inject ICartService CartService
+@inject ILocalStorageService _localStorage
+@using Microsoft.AspNetCore.WebUtilities
+@inject NavigationManager _navigationManager
+
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h3 class="mb-4">Sign In to Your Account</h3>
+
+            <EditForm Model="user" OnValidSubmit="HandleUserSignIn">
+                <DataAnnotationsValidator />
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Your Registered Email</label>
+                    <InputText id="email" @bind-Value="user.enteredEmail" class="form-control" />
+                    <ValidationMessage For="@(() => user.enteredEmail)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Your Account Password</label>
+                    <InputText id="password" @bind-Value="user.enteredPassword" class="form-control" type="password" />
+                    <ValidationMessage For="@(() => user.enteredPassword)" />
+                </div>
+
+                <button type="submit" class="btn btn-primary">Sign In</button>
+            </EditForm>
+
+            <button type="button" class="btn btn-link" @onclick="HandleResetPassword">Forgot Password?</button>
+
+            <PopupDiaglog @ref="pop" />
+
+            <div class="text-danger mt-3">
+                <span>@message4Error</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Login4User user = new();
+
+    PopupDiaglog pop;
+    
+    private string? backUrl = string.Empty;
+    private string message4Error = string.Empty;
+
+    private async Task HandleResetPassword()
+    {
+        pop.Show("Ráng nhớ đi rồi vô");
+    }
+    
+    private async Task HandleUserSignIn()
+    {
+        ServiceResponder<string> result = await _authenticationService.Login(user);
+        if (!result.IsSuccess) message4Error = result.Message;
+        else
+        {
+            message4Error = string.Empty;
+            await _localStorage.SetItemAsync("Authentication_Token_Key", result.Data);
+            await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            await CartService.PersistCartProducts(true);
+            await CartService.CountCartProducts();
+            _navigationManager.NavigateTo(backUrl.ToLower().Equals("register") ? "" : backUrl);
+        }
+    }
+
+    protected override void OnInitialized()
+        => backUrl = QueryHelpers.ParseQuery(_navigationManager.ToAbsoluteUri(_navigationManager.Uri)/*the uri*/
+                                            .Query)/*a pair of string and its key*/
+                                 .TryGetValue("backUrl", out var url)/*insert value to url based on specified key*/
+                                ? url /*if get value succeeded*/
+                                  : backUrl; /*if get value failed*/
+
+}

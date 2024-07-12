@@ -1,0 +1,27 @@
+@inject AuthenticationStateProvider _stateProvider
+@using System.Security.Claims
+
+@if (isAuthorized)
+{
+    <a class="dropdown-item" href="administrator/categories">Categories</a>
+    <a class="dropdown-item" href="administrator/product-varieties">Product Varieties</a>
+    <a class="dropdown-item" href="administrator/view-products">Products</a>
+    <hr />
+}
+
+@code {
+    bool isAuthorized;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if ((await _stateProvider.GetAuthenticationStateAsync())
+            .User
+            .Claims
+            .FirstOrDefault(c => c.Type == ClaimTypes.Role)
+            .Value
+            .Contains("Administrator"))
+        {
+            isAuthorized = true;
+        }
+    }
+}

@@ -1,0 +1,45 @@
+﻿@implements IDisposable
+@inject ICategoriesService _categoriesService
+
+<div class="top-row ps-3 navbar navbar-dark navbar-toggler-wrapper">
+    <div class="container-fluid">
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-nav">
+        <div class="nav-item px-2">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                Top Products
+            </NavLink>
+        </div>
+        @foreach (Category category in _categoriesService.Categories)
+        {
+            <div class="nav-item px-2">
+                <NavLink class="nav-link" href="@category.CategoryAccessUrl">
+                    @category.CategoryName
+                </NavLink>
+            </div>
+        }
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu() => collapseNavMenu = !collapseNavMenu;
+
+    public void Dispose()=> _categoriesService.ChangeOfCategory -= StateHasChanged;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await _categoriesService.GetCategories();
+        _categoriesService.ChangeOfCategory += StateHasChanged;
+    }
+
+}

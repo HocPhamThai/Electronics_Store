@@ -1,0 +1,44 @@
+@page "/UserProfile"
+@inject IAuthenticationService _authenticationService
+@attribute [Authorize]
+
+<AuthorizeView>
+    <h3>Greeting! <i>@context.User.Identity?.Name</i>.</h3>
+</AuthorizeView>
+
+<hr/>
+
+<h5>Delivery Address</h5>
+<FormFillAddress/>
+
+<hr/>
+
+<h5>Change Password</h5>
+<EditForm Model="request2ChangePassword" OnValidSubmit="ChangePassword">
+    <DataAnnotationsValidator/>
+    <div class="mb-3">
+            <label for="UserOldPassword">Enter Your Current Password</label>
+            <InputText id="UserOldPassword" @bind-Value="request2ChangePassword.UserOldPassword" class="form-control" type="password" />
+            <ValidationMessage For="@(() => request2ChangePassword.UserOldPassword)" />
+    </div>
+    <div class="mb-3">
+        <label for="UserNewPassword">Enter Your New Password</label>
+        <InputText id="UserNewPassword" @bind-Value="request2ChangePassword.UserNewPassword" class="form-control" type="password" />
+        <ValidationMessage For="@(() => request2ChangePassword.UserNewPassword)" />
+    </div>
+    <div class="mb-3">
+        <label for="UserConfirmedPassword">Confirm Your New Password</label>
+        <InputText id="UserConfirmedPassword" @bind-Value="request2ChangePassword.UserConfirmedPassword" class="form-control" type="password" />
+        <ValidationMessage For="@(() => request2ChangePassword.UserConfirmedPassword)" />
+    </div>
+    <button type="submit" class="btn btn-primary">Change Password</button>
+</EditForm>
+@message
+
+@code {
+    PasswordChange4User request2ChangePassword = new();
+    string message = string.Empty;
+
+    private async Task ChangePassword() =>
+        message = (await _authenticationService.ChangePassword(request2ChangePassword)).Message;
+}

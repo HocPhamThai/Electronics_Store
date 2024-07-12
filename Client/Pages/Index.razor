@@ -1,0 +1,68 @@
+﻿@page "/"
+@page "/{categoryUrl}"
+@page "/search/{text}/{currentPageIndex:int}"
+@inject IProductsService _productsService
+
+<PageTitle>Electronics Store</PageTitle>
+
+<div class="container mt-4">
+    <div class="alert alert-success" role="alert">
+        <h4 class="alert-heading">Special Sale Offer!</h4>
+        <p>Hello New Comers! Welcome to Our Electronics Shop. Enjoy exclusive discounts on selected items. Hurry up and grab your favorites!</p>
+        <hr>
+        <p class="mb-0">This offer is valid for a limited time only.</p>
+    </div>
+</div>@if (text != null || categoryUrl != null)
+{
+    <ListOfProducts/>
+}
+else
+{
+    <ListOfTopProducts/>
+}
+<label for="checkedPrice" style="padding: 10px 10px 10px 0">Sort By Price</label>
+<SfSwitch id="checkedPrice" @bind-Checked="isCheckedForPrice" OnLabel="DESC" OffLabel="ASC" ValueChange="SortByPrice" TChecked="bool"></SfSwitch><br/>
+<label for="checkedAlphabet" style="padding: 10px 10px 10px 0">Sort By Alphabet</label>
+<SfSwitch id="checkedAlphabet" @bind-Checked="isCheckedForAlphabet" OnLabel="DESC" OffLabel="ASC" ValueChange="SortByAlphabet" TChecked="bool"></SfSwitch>
+    
+
+@code
+{
+    [Parameter]
+    public string? categoryUrl { get; set; }
+
+    [Parameter]
+    public string? text { get; set; }
+
+    [Parameter]
+    public int currentPageIndex { get; set; } = 1;
+    
+    public bool isCheckedForPrice; //false = sort by desc
+    public bool isCheckedForAlphabet; // false = sort by desc
+
+    public void SortByPrice(Syncfusion.Blazor.Buttons.ChangeEventArgs<bool> args)
+    {
+        if(isCheckedForPrice)
+            _productsService.SortProductsByPrice(0);
+        else
+            _productsService.SortProductsByPrice(-1);
+    }
+    public void SortByAlphabet(Syncfusion.Blazor.Buttons.ChangeEventArgs<bool> args)
+    {
+        if(isCheckedForAlphabet)
+            _productsService.SortProductsByAlphabet(0);
+        else
+            _productsService.SortProductsByAlphabet(-1);
+    }
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(text))
+            await _productsService.GetProductsBySearchText(text, currentPageIndex);
+        else
+            await _productsService.GetProducts(categoryUrl);
+    }
+    protected override void OnInitialized() => _productsService.ChangeOfProducts += StateHasChanged;//register event
+
+    public void Dispose() => _productsService.ChangeOfProducts -= StateHasChanged; //unregister
+}

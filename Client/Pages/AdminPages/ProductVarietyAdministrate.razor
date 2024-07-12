@@ -1,0 +1,66 @@
+@page "/administrator/product-varieties"
+@inject IProductVarietyService _productVarietyService
+@implements IDisposable
+@attribute [Authorize(Roles = "Administrator")]
+
+
+<h3>Product Variety</h3>
+@foreach (ProductVariety productVariety in _productVarietyService.ProductVarieties)
+{
+    @if (!productVariety.isModifying)
+    {
+        <div class="row">
+            <div class="col">
+                @productVariety.Name
+            </div>
+            <div class="col">
+                <button class="btn btn-primary" @onclick="@(() => ModifyProductVariety(productVariety))"><i class="oi oi-pencil"></i></button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <EditForm Model="modifyingProductVariety" OnSubmit="UpdateProductVariety">
+            <div class="row">
+                <div class="col">
+                    <InputText @bind-Value="modifyingProductVariety.Name" class="form-control"></InputText>
+                </div>
+                <div class="col">
+                    <button type="submit" class="btn btn-primary"><i class="oi oi-cloud-upload"></i></button>
+                </div>
+            </div>
+        </EditForm>
+    }
+}
+<button class="btn btn-primary" @onclick="CreateProductVariety">
+    <i class="oi oi-plus"></i> Add new product type
+</button>
+
+@code {
+    ProductVariety? modifyingProductVariety;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await _productVarietyService.GetProductVarieties();
+        _productVarietyService.ChangeOfProductVariety += StateHasChanged;
+    }
+
+    public void Dispose() => _productVarietyService.ChangeOfProductVariety -= StateHasChanged;
+
+    private void ModifyProductVariety(ProductVariety productVariety)
+    {
+        productVariety.isModifying = true;
+        modifyingProductVariety = productVariety;
+    }
+
+    private void CreateProductVariety() => modifyingProductVariety = _productVarietyService.CreateProductVariety();
+
+    private async Task UpdateProductVariety()
+    {
+        if (!modifyingProductVariety.isNew)
+            await _productVarietyService.UpdateProductVariety(modifyingProductVariety);
+        else
+            await _productVarietyService.AddProductVariety(modifyingProductVariety);
+        modifyingProductVariety = new ProductVariety();
+    }
+}

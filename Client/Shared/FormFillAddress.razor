@@ -1,0 +1,77 @@
+@inject IAddressService AddressService
+
+@if (address != null)
+{
+    if (wantToUpdateAddress)
+    {
+        <EditForm Model="address" OnSubmit="Submit">
+            <div class="mb-3">
+                <label for="country">Country</label>
+                <InputText id="country" @bind-Value="address.country" class="form-control"/>
+            </div>
+            <div class="mb-3">
+                <label for="city">City</label>
+                <InputText id="city" @bind-Value="address.city" class="form-control"/>
+            </div>
+            <div class="mb-3">
+                <label for="district">District</label>
+                <InputText id="district" @bind-Value="address.district" class="form-control"/>
+            </div>
+            <div class="mb-3">
+                <label for="zip">ZIP/Postal Code</label>
+                <InputText id="zip" @bind-Value="address.zip" class="form-control"/>
+            </div>
+            <div class="mb-3">
+                <label for="street">Street</label>
+                <InputText id="street" @bind-Value="address.street" class="form-control"/>
+            </div>
+            <div class="mb-3">
+                <label for="firstname">First Name</label>
+                <InputText id="firstname" @bind-Value="address.firstName" class="form-control"/>
+            </div>
+            <div class="mb-3">
+                <label for="lastname">Last Name</label>
+                <InputText id="lastname" @bind-Value="address.lastName" class="form-control"/>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Address</button>
+        </EditForm>
+    }
+    else
+    {
+        <p>
+            <span>@address.country</span><br />
+            <span>@address.city, @address.district, @address.zip</span><br/>
+            <span>@address.street</span><br/>
+            <span>@address.firstName @address.lastName</span><br/>
+        </p>
+        <button class="btn btn-primary" @onclick="UpdateAddress">Update Address</button>
+    }
+}
+else
+{
+    <span>
+        Please specify your address to deliver!
+        Do you want to <button class="btn" @onclick="CreateAddress">add an address</button> ?
+    </span>
+}
+
+@code {
+    Address? address;
+    bool wantToUpdateAddress;
+
+    protected override async Task OnInitializedAsync() => address = await AddressService.GetAddress();
+
+    private async Task Submit()
+    {
+        wantToUpdateAddress = false;
+        address = await AddressService.AddOrUpdateAddress(address);
+    }
+
+    private void CreateAddress()
+    {
+        address = new Address();
+        wantToUpdateAddress = true;
+    }
+
+    private void UpdateAddress() => wantToUpdateAddress = true;
+}

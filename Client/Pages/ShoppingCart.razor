@@ -1,0 +1,86 @@
+@page "/ShoppingCart"
+@inject NavigationManager _navigationManager
+@inject IAuthenticationService _authenticationService
+@inject ICartService _cartService
+@inject IOrderService _orderService
+
+<PageTitle>Shopping Cart</PageTitle>
+<h3>Shopping Cart</h3>
+@if (responses?.Count != 0)
+{
+    <div>
+        @foreach (var response in responses)
+        {
+            <div class="container">
+                <div class="image-wrapper">
+                    <a href="/products/@response.productId">
+                        <img src="@response.imageUrl" class="image" alt="image of the product"/>
+                    </a>
+                </div>
+                <div class="name">
+                    <h5><a href="/products/@response.productId">@response.name</a></h5>
+                    <span>@response.productVariety</span><br/>
+                    <input type="number" value="@response.quantity"
+                           @onchange="@(e => UpdateQuantity(e, response))"
+                           class="form-control input-quantity"
+                           min="1"/>
+                    <button class="btn-delete" @onclick="@(() => RemoveProductFromCart(response.productId, response.productVarietyId))">
+                        Remove Product
+                    </button>
+                </div>
+                <div class="cart-product-price">Single Item Price: $@(response.price) USD</div><br/>
+                <div class="cart-product-price">Total Product Price: $@(response.price * response.quantity) USD</div>
+            </div>
+        }
+        <div class="cart-product-price">
+            Total items [@responses?.Sum(response => response.quantity)]: $@responses?.Sum(response => @response.price * response.quantity) USD
+        </div>
+    </div>
+    @if (isAuthenticated)
+    {
+        <div>
+            <h5>Delivery Address</h5>
+            <FormFillAddress/>
+        </div>
+    }
+    <button @onclick="PutOrder" class="btn alert-success float-end mt-1">Purchase!</button>
+}
+else
+{
+    <span>@message</span>
+}
+@code {
+    bool isAuthenticated = false;
+    List<CartProductResponder> responses = new();
+    string message = "Loading cart...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        isAuthenticated = await _authenticationService.IsAuthenticatedUser();
+        await LoadCart();
+    }
+
+    private async Task PutOrder()
+        => _navigationManager.NavigateTo(await _orderService.PutOrder());
+
+    private async Task RemoveProductFromCart(int productId, int productVarietyId)
+    {
+        await _cartService.RemoveFromCart(productId, productVarietyId);
+        await LoadCart();
+    }
+
+    private async Task LoadCart()
+    {
+        await _cartService.CountCartProducts();
+        responses = await _cartService.GetCartProductResponses();
+        if (responses.Count == 0)
+            message = "There's Nothing in Your Cart! Please add to cart some products!";
+    }
+
+    private async Task UpdateQuantity(ChangeEventArgs eventArgs, CartProductResponder responder)
+    {
+        int quantity = int.Parse(eventArgs.Value?.ToString());
+        responder.quantity = (quantity < 1) ? 1 : quantity;
+        await _cartService.UpdateQuantity(responder);
+    }
+}

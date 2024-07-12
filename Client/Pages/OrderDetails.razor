@@ -1,0 +1,39 @@
+@page "/OrderDetails/{orderId:int}"
+@inject IOrderService _orderService
+
+@if (detail != null)
+{
+    <h3>Order from @detail.orderDate</h3>
+    <div>
+        @foreach (DetailOrderProductResponder orderProductDetail in detail.products)
+        {
+            <div class="container">
+                <div class="image-wrapper">
+                    <img src="@orderProductDetail.productImageUrl" class="image" alt="product image"/>
+                </div>
+                <div class="name">
+                    <h5><a href="/products/@orderProductDetail.productId">Ordered Product: @orderProductDetail.productName</a></h5>
+                    <span>Ordered Product Type: @orderProductDetail.productVariety</span><br/>
+                    <span>Ordered Quantity: @orderProductDetail.quantity</span>
+                </div>
+                <div class="product-price">Ordered Product Total Price: $@orderProductDetail.totalPrice</div>
+            </div>
+        }
+        <div class="product-price">
+            Total Price: $@detail.totalPrice
+        </div>
+    </div>
+}
+else
+{
+    <span>Loading Order Detail ...</span>
+}
+
+@code {
+    [Parameter]
+    public int orderId { get; set; }
+
+    DetailOrderResponder? detail;
+
+    protected override async Task OnInitializedAsync() => detail = await _orderService.GetDetail(orderId);
+}
