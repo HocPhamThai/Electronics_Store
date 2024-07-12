@@ -1,0 +1,14 @@
+E:\StudyInClass\HK1nam4\reposCSharp\EndTern\Electronics_Store-master\Shared\bin\Debug\net7.0\Electronics_Store.Shared.deps.json
+E:\StudyInClass\HK1nam4\reposCSharp\EndTern\Electronics_Store-master\Shared\bin\Debug\net7.0\Electronics_Store.Shared.runtimeconfig.json
+E:\StudyInClass\HK1nam4\reposCSharp\EndTern\Electronics_Store-master\Shared\bin\Debug\net7.0\Electronics_Store.Shared.dll
+E:\StudyInClass\HK1nam4\reposCSharp\EndTern\Electronics_Store-master\Shared\bin\Debug\net7.0\Electronics_Store.Shared.pdb
+E:\StudyInClass\HK1nam4\reposCSharp\EndTern\Electronics_Store-master\Shared\obj\Debug\net7.0\Electronics_Store.Shared.csproj.AssemblyReference.cache
+E:\StudyInClass\HK1nam4\reposCSharp\EndTern\Electronics_Store-master\Shared\obj\Debug\net7.0\Electronics_Store.Shared.GeneratedMSBuildEditorConfig.editorconfig
+E:\StudyInClass\HK1nam4\reposCSharp\EndTern\Electronics_Store-master\Shared\obj\Debug\net7.0\Electronics_Store.Shared.AssemblyInfoInputs.cache
+E:\StudyInClass\HK1nam4\reposCSharp\EndTern\Electronics_Store-master\Shared\obj\Debug\net7.0\Electronics_Store.Shared.AssemblyInfo.cs
+E:\StudyInClass\HK1nam4\reposCSharp\EndTern\Electronics_Store-master\Shared\obj\Debug\net7.0\Electronics_Store.Shared.csproj.CoreCompileInputs.cache
+E:\StudyInClass\HK1nam4\reposCSharp\EndTern\Electronics_Store-master\Shared\obj\Debug\net7.0\Electronics_Store.Shared.dll
+E:\StudyInClass\HK1nam4\reposCSharp\EndTern\Electronics_Store-master\Shared\obj\Debug\net7.0\refint\Electronics_Store.Shared.dll
+E:\StudyInClass\HK1nam4\reposCSharp\EndTern\Electronics_Store-master\Shared\obj\Debug\net7.0\Electronics_Store.Shared.pdb
+E:\StudyInClass\HK1nam4\reposCSharp\EndTern\Electronics_Store-master\Shared\obj\Debug\net7.0\Electronics_Store.Shared.genruntimeconfig.cache
+E:\StudyInClass\HK1nam4\reposCSharp\EndTern\Electronics_Store-master\Shared\obj\Debug\net7.0\ref\Electronics_Store.Shared.dll
